@@ -1,0 +1,107 @@
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+#include <render_screen.h>
+
+#include "QPainter"
+
+Render_Screen::polygon *mainpolygon, *testopt;
+
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+
+    Polygon::four_divition_return_type ret;
+    Polygon ply3; ply3.insertPoint(1024,0);ply3.insertPoint(2048,0);ply3.insertPoint(2048,2048);//ply3.insertPoint(1024,2048);
+    ply3.close();
+    //qDebug()<<ply3.debug_string();
+    BB_Tree_Pixel pix(6,1024*2);
+    pix.add_polygon(ply3, 0, 255, 255,255);
+    qDebug()<<pix.r()<<pix.g()<<pix.b()<<pix.a();
+    /*qDebug()<<ply3.debug_string();
+    ret = ply3.four_divition(1024,1024);
+    for(int i=0;i<4;i++)
+    {
+        qDebug()<<ret.p[i].debug_string();
+    }/**/
+
+    //qDebug()<<"ttt";
+    /*Polygon ply4; ply4.insertPoint(1984,1920);ply4.insertPoint(1920,1792);ply4.insertPoint(2048,1792);ply4.insertPoint(2048,1920);
+    ply4.close();
+    ret = ply4.four_divition(1984, 1856);
+    for(int i=0;i<4;i++)
+    {
+        qDebug()<<ret.p[i].debug_string();
+    }/**/
+
+    //start test
+
+    Render_Screen scr(320, 240);
+    Render_Screen::polygon *temp=nullptr;
+    temp        = new Render_Screen::polygon;  mainpolygon = temp;temp->x = 320*2048; temp->y = 23*2048;
+    temp->next  = new Render_Screen::polygon; temp = temp->next  ;temp->x = 160*2048; temp->y = 109*2048;
+    temp->next  = new Render_Screen::polygon; temp = temp->next  ;temp->x = 320*2048; temp->y = 112*2048;
+    temp->next  = new Render_Screen::polygon; temp = temp->next  ;temp->x = 320*2048; temp->y = 119*2048;
+    temp->next  = new Render_Screen::polygon; temp = temp->next  ;temp->x = 386*2048; temp->y = 100*2048;
+    temp->next  = new Render_Screen::polygon; temp = temp->next  ;temp->x = 320*2048; temp->y = 203*2048;
+    temp->next  = new Render_Screen::polygon; temp = temp->next  ;temp->x = 320*2048; temp->y = 220*2048;
+    temp->next  = new Render_Screen::polygon; temp = temp->next  ;temp->x = 221*2048; temp->y = 285*2048;
+    temp->next  = new Render_Screen::polygon; temp = temp->next  ;temp->x = 257*2048; temp->y = 240*2048;
+    temp->next  = new Render_Screen::polygon; temp = temp->next  ;temp->x = 234*2048; temp->y = 249*2048;
+    temp->next  = new Render_Screen::polygon; temp = temp->next  ;temp->x = 243*2048; temp->y = 240*2048;
+    temp->next  = new Render_Screen::polygon; temp = temp->next  ;temp->x = 213*2048; temp->y = 240*2048;
+    temp->next  = new Render_Screen::polygon; temp = temp->next  ;temp->x = 207*2048; temp->y = 182*2048;
+    temp->next  = new Render_Screen::polygon; temp = temp->next  ;temp->x = 186*2048; temp->y = 240*2048;
+    temp->next  = new Render_Screen::polygon; temp = temp->next  ;temp->x = 178*2048; temp->y = 122*2048;
+    temp->next  = new Render_Screen::polygon; temp = temp->next  ;temp->x = 154*2048; temp->y = 240*2048;
+    temp->next  = new Render_Screen::polygon; temp = temp->next  ;temp->x = 122*2048; temp->y = 240*2048;
+    temp->next  = new Render_Screen::polygon; temp = temp->next  ;temp->x = -133*2048; temp->y = 345*2048;
+
+
+
+    temp->next  = new Render_Screen::polygon; temp = temp->next  ;temp->x = 121*2048; temp->y = -63*2048;
+    temp->next = mainpolygon;
+
+    Render_Screen::color color; color.r = 212; color.g = 111; color.b = 0; color.alpha=255;
+    testopt = scr.fit_in_screen_polygon_int(mainpolygon);/**/
+    //scr.add_concave_polygon_fit(mainpolygon,color);
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+void MainWindow::paintEvent(QPaintEvent *e)
+{
+
+    int ox=200,oy=440;
+    QPainter painter(this);
+    painter.fillRect(0,0,1000,700,QColor(0,0,0));
+
+    painter.setPen(QPen(QColor(0,0,255)));
+    painter.drawLine(ox+0,oy+0,ox+0,oy-240);
+    painter.drawLine(ox+0,oy+0,ox+320,oy);
+    painter.drawLine(ox+0,oy-240,ox+320,oy-240);
+    painter.drawLine(ox+320,oy,ox+320,oy-240);
+
+    Render_Screen::polygon *temp=mainpolygon;
+    painter.setPen(QPen(QColor(223,111,0)));
+    painter.drawLine(ox+temp->x/2048,oy-temp->y/2048,ox+temp->next->x/2048,oy-temp->next->y/2048);
+    while(temp->next!=mainpolygon)
+    {
+        temp = temp->next;
+        painter.drawLine(ox+temp->x/2048,oy-temp->y/2048,ox+temp->next->x/2048,oy-temp->next->y/2048);
+    }
+
+    temp=testopt;
+    painter.setPen(QPen(QColor(0,255,255)));
+    painter.drawLine(ox+temp->x/2048,oy-temp->y/2048,ox+temp->next->x/2048,oy-temp->next->y/2048);
+    while(temp->next!=testopt)
+    {
+        temp = temp->next;
+        painter.drawLine(ox+temp->x/2048,oy-temp->y/2048,ox+temp->next->x/2048,oy-temp->next->y/2048);
+    }/**/
+}
+
